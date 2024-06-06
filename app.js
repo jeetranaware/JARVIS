@@ -1,7 +1,4 @@
-// To take voice input through btn
-const startbtn = document.querySelector("#start");
-const stopbtn = document.querySelector("#stop");
-const speakbtn = document.querySelector("#speak");
+const heart = document.querySelector(".heart img");
 
 function weather(location) {
   const weatherCont = document.querySelector(".temp").querySelectorAll("*");
@@ -20,7 +17,7 @@ function weather(location) {
       weatherCont[5].textContent = `Original Temperature : ${ktc(
         data.main.temp
       )}`;
-      weatherCont[6].textContent = `feels like ${ktc(data.main.feels_like)}`;
+      weatherCont[6].textContent = `Feels like ${ktc(data.main.feels_like)}`;
       weatherCont[7].textContent = `Min temperature ${ktc(data.main.temp_min)}`;
       weatherCont[8].textContent = `Max temperature ${ktc(data.main.temp_max)}`;
       weatherStatement = `sir the weather in ${data.name} is ${
@@ -33,11 +30,14 @@ function weather(location) {
 
   xhr.send();
 }
+
 function ktc(k) {
   k = k - 273.15;
   return k.toFixed(2);
 }
+
 weather("Phaltan");
+
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = new SpeechRecognition();
@@ -58,7 +58,6 @@ recognition.onresult = function (event) {
     readOut("opening youtube sir");
     window.open("https://www.youtube.com/");
   }
-
   if (transcript.includes("open linkedin profile")) {
     readOut("opening linkedin profile sir");
     window.open("https://www.linkedin.com/in/vishwajeet-ranaware-859973228/");
@@ -71,7 +70,6 @@ recognition.onresult = function (event) {
     readOut("here's the result");
     let input = transcript.split("");
     input.splice(0, 11);
-    // input.pop();
     input = input.join("").split(" ").join("+");
     window.open(`https://www.google.com/search?q=${input}`);
     console.log(input);
@@ -80,7 +78,6 @@ recognition.onresult = function (event) {
     readOut("here's the result");
     let input = transcript.split("");
     input.splice(0, 9);
-    // input.pop();
     input = input.join("").split(" ").join("+");
     window.open(`https://www.youtube.com/results?search_query=${input}`);
     console.log(input);
@@ -91,25 +88,43 @@ recognition.onend = function () {
   console.log("vr deactive");
 };
 
-// recognition.continuous = true; // deactive auto off recording feature when we are not taking
+let recognizing = false;
 
-startbtn.addEventListener("click", () => {
-  recognition.start();
+heart.addEventListener("click", () => {
+  if (recognizing) {
+    recognition.stop();
+    recognizing = false;
+  } else {
+    recognition.start();
+    recognizing = true;
+  }
 });
 
-stopbtn.addEventListener("click", () => {
-  recognition.stop();
-});
-
-//Make Jarvis speak
+// Make Jarvis speak
 function readOut(message) {
-  const speech = new SpeechSynthesisUtterance(); // API to readout message
+  const speech = new SpeechSynthesisUtterance();
   speech.text = message;
-  speech.volume = 5;
+  speech.volume = 1;
   window.speechSynthesis.speak(speech);
   console.log("Speaking Out");
 }
 
+const speakbtn = document.querySelector("#speak");
 speakbtn.addEventListener("click", () => {
   readOut("Hi my name is Jarvis");
 });
+
+// Function to update the time
+function updateTime() {
+  const currentTimeElement = document.getElementById("current-time");
+  const now = new Date();
+  const hours = now.getHours().toString().padStart(2, "0");
+  const minutes = now.getMinutes().toString().padStart(2, "0");
+  const seconds = now.getSeconds().toString().padStart(2, "0");
+  currentTimeElement.textContent = `${hours}:${minutes}:${seconds}`;
+}
+
+// Initial call to display the time immediately
+updateTime();
+// Update the time every second
+setInterval(updateTime, 1000);
