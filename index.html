@@ -5,14 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>F R I D A Y</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <title>JARVIS</title>
 </head>
 
 <body>
-    <div class="div container">
+    <section class="main">
         <div class="clock">
             <img src="clock1.png" alt="clock" style="width: 2rem; margin: 2rem; border-radius: 50%;">
-            <p id="current-time" style="color: white;">HI</p> <!-- Add this line for the clock -->
+            <p id="current-time" style="color: white;"></p> <!-- Add this line for the clock -->
         </div>
         <div class="temp">
             <p id="location"></p>
@@ -25,11 +27,18 @@
             <p id="minT"></p>
             <p id="maxT"></p>
         </div>
-        <div class="heart">
-            <img src="heart.gif" alt="heart" id="heart">
+        <div class="image-container">
+            <div class="image">
+                <img src="giphy.gif" alt="image">
+            </div>
+            <h1>J A R V I S</h1>
+            <p>I m a Virtual Assistant JARVIS, How may i help you?</p>
         </div>
-    </div>
-
+        <div class="input">
+            <button class="talk"><i class="fas fa-microphone-alt"></i></button>
+            <h1 class="content"> Click here to speak</h1>
+        </div>
+    </section>
 </body>
 <script src="app.js"></script>
 

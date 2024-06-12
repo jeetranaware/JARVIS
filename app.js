@@ -1,14 +1,23 @@
-const heart = document.querySelector(".heart img");
+const btn = document.querySelector(".talk");
+const content = document.querySelector(".content");
+
+function speak(text) {
+  const textSpeak = new SpeechSynthesisUtterance(text);
+  textSpeak.rate = 1;
+  textSpeak.volume = 1;
+  textSpeak.pitch = 1;
+  window.speechSynthesis.speak(textSpeak);
+}
 
 function weather(location) {
-  const weatherCont = document.querySelector(".temp").querySelectorAll("*");
+  const weatherCont = document.querySelectorAll(".temp *");
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=48ddfe8c9cf29f95b7d0e54d6e171008`;
 
-  let url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=48ddfe8c9cf29f95b7d0e54d6e171008`;
   const xhr = new XMLHttpRequest();
   xhr.open("GET", url, true);
   xhr.onload = function () {
     if (this.status === 200) {
-      let data = JSON.parse(this.responseText);
+      const data = JSON.parse(this.responseText);
       weatherCont[0].textContent = `Location : ${data.name}`;
       weatherCont[1].textContent = `Country : ${data.sys.country}`;
       weatherCont[2].textContent = `Weather type : ${data.weather[0].main}`;
@@ -20,101 +29,57 @@ function weather(location) {
       weatherCont[6].textContent = `Feels like ${ktc(data.main.feels_like)}`;
       weatherCont[7].textContent = `Min temperature ${ktc(data.main.temp_min)}`;
       weatherCont[8].textContent = `Max temperature ${ktc(data.main.temp_max)}`;
-      weatherStatement = `sir the weather in ${data.name} is ${
+      const weatherStatement = `Sir, the weather in ${data.name} is ${
         data.weather[0].description
       } and the temperature feels like ${ktc(data.main.feels_like)}`;
+      speak(weatherStatement);
     } else {
       weatherCont[0].textContent = "Weather Info Not Found";
     }
   };
-
   xhr.send();
 }
 
 function ktc(k) {
-  k = k - 273.15;
-  return k.toFixed(2);
+  return (k - 273.15).toFixed(2);
 }
 
-weather("Phaltan");
+weather("PUNE");
+
+function wishMe() {
+  const day = new Date();
+  const hour = day.getHours();
+
+  if (hour >= 0 && hour < 12) {
+    speak("Good Morning Boss...");
+  } else if (hour >= 12 && hour < 17) {
+    speak("Good Afternoon Master...");
+  } else {
+    speak("Good Evening Sir...");
+  }
+}
+
+window.addEventListener("load", () => {
+  speak("Initializing JARVIS...");
+  wishMe();
+});
 
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = new SpeechRecognition();
 
-recognition.onstart = function () {
-  console.log("vr active");
+recognition.onresult = (event) => {
+  const currentIndex = event.resultIndex;
+  const transcript = event.results[currentIndex][0].transcript;
+  content.textContent = transcript;
+  takeCommand(transcript.toLowerCase());
 };
 
-recognition.onresult = function (event) {
-  let current = event.resultIndex;
-  let transcript = event.results[current][0].transcript;
-  transcript = transcript.toLowerCase();
-  console.log(`my words : ${transcript}`);
-  if (transcript.includes("hello jarvis")) {
-    readOut("Hello Sir");
-  }
-  if (transcript.includes("open youtube")) {
-    readOut("opening youtube sir");
-    window.open("https://www.youtube.com/");
-  }
-  if (transcript.includes("open linkedin profile")) {
-    readOut("opening linkedin profile sir");
-    window.open("https://www.linkedin.com/in/vishwajeet-ranaware-859973228/");
-  }
-  if (transcript.includes("open google")) {
-    readOut("opening google sir");
-    window.open("https://www.google.com/");
-  }
-  if (transcript.includes("search for")) {
-    readOut("here's the result");
-    let input = transcript.split("");
-    input.splice(0, 11);
-    input = input.join("").split(" ").join("+");
-    window.open(`https://www.google.com/search?q=${input}`);
-    console.log(input);
-  }
-  if (transcript.includes("play for")) {
-    readOut("here's the result");
-    let input = transcript.split("");
-    input.splice(0, 9);
-    input = input.join("").split(" ").join("+");
-    window.open(`https://www.youtube.com/results?search_query=${input}`);
-    console.log(input);
-  }
-};
-
-recognition.onend = function () {
-  console.log("vr deactive");
-};
-
-let recognizing = false;
-
-heart.addEventListener("click", () => {
-  if (recognizing) {
-    recognition.stop();
-    recognizing = false;
-  } else {
-    recognition.start();
-    recognizing = true;
-  }
+btn.addEventListener("click", () => {
+  content.textContent = "Listening...";
+  recognition.start();
 });
 
-// Make Jarvis speak
-function readOut(message) {
-  const speech = new SpeechSynthesisUtterance();
-  speech.text = message;
-  speech.volume = 1;
-  window.speechSynthesis.speak(speech);
-  console.log("Speaking Out");
-}
-
-const speakbtn = document.querySelector("#speak");
-speakbtn.addEventListener("click", () => {
-  readOut("Hi my name is Jarvis");
-});
-
-// Function to update the time
 function updateTime() {
   const currentTimeElement = document.getElementById("current-time");
   const now = new Date();
@@ -128,3 +93,74 @@ function updateTime() {
 updateTime();
 // Update the time every second
 setInterval(updateTime, 1000);
+
+function takeCommand(message) {
+  if (message.includes("hey") || message.includes("hello")) {
+    speak("Hello Sir, How May I Help You?");
+  } else if (message.includes("open google")) {
+    window.open("https://google.com", "_blank");
+    speak("Opening Google...");
+  } else if (message.includes("open youtube")) {
+    window.open("https://youtube.com", "_blank");
+    speak("Opening YouTube...");
+  } else if (message.includes("open facebook")) {
+    window.open("https://facebook.com", "_blank");
+    speak("Opening Facebook...");
+  } else if (
+    message.includes("what is") ||
+    message.includes("who is") ||
+    message.includes("what are")
+  ) {
+    window.open(
+      `https://www.google.com/search?q=${message.replace(" ", "+")}`,
+      "_blank"
+    );
+    const finalText =
+      "This is what I found on the internet regarding " + message;
+    speak(finalText);
+  } else if (message.includes("wikipedia")) {
+    window.open(
+      `https://en.wikipedia.org/wiki/${message
+        .replace("wikipedia", "")
+        .trim()}`,
+      "_blank"
+    );
+    const finalText = "This is what I found on Wikipedia regarding " + message;
+    speak(finalText);
+  } else if (message.includes("time")) {
+    const time = new Date().toLocaleString(undefined, {
+      hour: "numeric",
+      minute: "numeric",
+    });
+    const finalText = "The current time is " + time;
+    speak(finalText);
+  } else if (message.includes("date")) {
+    const date = new Date().toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+    });
+    const finalText = "Today's date is " + date;
+    speak(finalText);
+  } else if (message.includes("calculator")) {
+    window.open("Calculator:///");
+    const finalText = "Opening Calculator";
+    speak(finalText);
+  } else {
+    window.open(
+      `https://www.google.com/search?q=${message.replace(" ", "+")}`,
+      "_blank"
+    );
+    const finalText = "I found some information for " + message + " on Google";
+    speak(finalText);
+  }
+  if (message.includes("play for")) {
+    speak("Here's the result");
+    const input = message.split(" ").slice(2).join("+");
+    window.open(`https://www.youtube.com/results?search_query=${input}`);
+  }
+
+  if (message.includes("open linkedin profile")) {
+    speak("Opening LinkedIn profile sir");
+    window.open("https://www.linkedin.com/in/vishwajeet-ranaware-859973228/");
+  }
+}
